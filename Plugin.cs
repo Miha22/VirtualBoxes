@@ -1,16 +1,10 @@
 ﻿using System;
 using Rocket.Core.Plugins;
-using Rocket.API;
 using System.IO;
-using System.Threading.Tasks;
-using Rocket.Core.Commands;
 using System.Collections.Generic;
-using SDG.Unturned;
-using Newtonsoft.Json;
-using SDG.Framework.IO.Serialization;
-using UnityEngine;
 using Logger = Rocket.Core.Logging.Logger;
-using System.Threading;
+using System.Xml.Serialization;
+using Rocket.API.Serialisation;
 
 namespace ItemRestrictorAdvanced
 {
@@ -22,6 +16,7 @@ namespace ItemRestrictorAdvanced
         string path;
         string pathPages;
         internal string pathTemp;
+        internal RocketPermissions permissions;
 
         protected override void Load()
         {
@@ -29,6 +24,15 @@ namespace ItemRestrictorAdvanced
             if (Configuration.Instance.Enabled)
             {
                 Instance = this;
+                XmlSerializer formatter = new XmlSerializer(typeof(RocketPermissions));
+
+                // десериализация
+                using (FileStream fs = new FileStream("Permissions.config.xml", FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+                {
+                    this.permissions = (RocketPermissions)formatter.Deserialize(fs);
+                    fs.Close();
+                }
+
                 //Provider.onServerShutdown += OnServerShutdown;
 
                 //cts = new CancellationTokenSource();

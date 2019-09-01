@@ -5,7 +5,7 @@ using SDG.Unturned;
 using Rocket.Unturned.Player;
 using UnityEngine;
 using System.IO;
-using Steamworks;
+using System.Linq;
 
 namespace ItemRestrictorAdvanced
 {
@@ -18,14 +18,60 @@ namespace ItemRestrictorAdvanced
         public List<string> Aliases => new List<string>() { "sb" };
         public List<string> Permissions => new List<string>() { "rocket.sendbox", "rocket.sb" };
 
+
+        private bool GetAllowed(string steamID, out ushort boxlimit, out string groupName)
+        {
+            foreach (var group in Plugin.Instance.permissions.Groups)
+            {
+                foreach (var member in group.Members)
+                {
+                    if (member == steamID)
+                    {
+                        foreach (var gr in Plugin.Instance.Configuration.Instance.Groups)
+                        {
+                            if (gr.GroupID == group.Id)
+                            {
+                                boxlimit = gr.BoxLimit;
+                                groupName = gr.GroupID;
+                                return true;
+                            }  
+                        }
+                    }
+                }
+            }
+
+            boxlimit = 0;
+            groupName = null;
+            return false;
+        }
         public void Execute(IRocketPlayer caller, string[] command)
         {
+            UnturnedPlayer player = (UnturnedPlayer)caller;
+            DirectoryInfo directory = new DirectoryInfo(Plugin.Instance.pathTemp + "\\" + ((UnturnedPlayer)caller).CSteamID.ToString());
+            if (!directory.Exists || directory.GetFiles().Length == 0)
+                directory.Create();
+            if (!GetAllowed(player.CSteamID.ToString(), out ushort allowedTotal, out string groupName))
+            {
+                Rocket.Unturned.Chat.UnturnedChat.Say(caller, "You groupID was not found to find your find limits");
+                return;
+            }
+            ushort boxNow = (ushort)new DirectoryInfo(Plugin.Instance.pathTemp + $@"\{player.CSteamID}").GetFiles().Length;
+            if(allowedTotal - boxNow == 0)
+            {
+                Rocket.Unturned.Chat.UnturnedChat.Say(caller, $"You have reached your limit of boxes in cloud. \r\nLimit: {allowedTotal}\r\nYour groupID: {groupName}");
+                return;
+            }
+            else if(allowedTotal - boxNow < 0)
+            {
+                Rocket.Unturned.Chat.UnturnedChat.Say(caller, $"You have {boxNow - allowedTotal} extra boxes in cloud box intentory, drop {boxNow - allowedTotal + 1} boxes to send new box");
+                return;
+            }
+
             if (command.Length > 1)
             {
                 Rocket.Unturned.Chat.UnturnedChat.Say(caller, U.Translate("command_generic_invalid_parameter"));
                 throw new WrongUsageOfCommandException(caller, this);
             }
-            UnturnedPlayer player = (UnturnedPlayer)caller;
             if (Physics.Raycast(player.Player.look.aim.position, player.Player.look.aim.forward, out RaycastHit hit, 4, RayMasks.BARRICADE_INTERACT))
             {
                 if (BarricadeManager.tryGetInfo(hit.transform, out byte x, out byte y, out ushort plant, out ushort index, out BarricadeRegion r))
