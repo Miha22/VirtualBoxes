@@ -41,13 +41,10 @@
     <Compile Include="Functions.cs" />
     <Compile Include="Group.cs" />
     <Compile Include="ManageCloudUI.cs" />
-    <Compile Include="MyConverter.cs" />
     <Compile Include="MyItem.cs" />
     <Compile Include="PluginConfiguration.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Refresh.cs" />
-    <Compile Include="SteamPlayerCompaper.cs" />
     <Compile Include="CommandBoxDown.cs" />
   </ItemGroup>
   <ItemGroup>

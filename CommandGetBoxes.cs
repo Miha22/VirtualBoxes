@@ -19,6 +19,7 @@ namespace ItemRestrictorAdvanced
 
         public void Execute(IRocketPlayer caller, string[] command)
         {
+            Rocket.Core.Permissions.RocketPermissionsManager.Per
             if(command.Length == 0)
             {
                 DirectoryInfo directory = new DirectoryInfo(Plugin.Instance.pathTemp + "\\" + ((UnturnedPlayer)caller).CSteamID.ToString());

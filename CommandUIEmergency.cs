@@ -16,10 +16,6 @@ namespace ItemRestrictorAdvanced
 
         public void Execute(IRocketPlayer caller, string[] command)
         {
-            foreach (var group in Plugin.Instance.Configuration.Instance.Groups)
-            {
-                Console.WriteLine($"{group.GroupID}: {group.BoxLimit}");
-            }
             //ManageUI.UnLoad();
             //Console.WriteLine(ManageUI.Instances == null);
             //Logger.Log("Inventory UI stoped", ConsoleColor.Cyan);
